@@ -1,22 +1,27 @@
 package com.spring.jobms.job.mapper;
 
 import com.spring.jobms.job.Job;
-import com.spring.jobms.job.dto.JobWithCompanyDTO;
+import com.spring.jobms.job.dto.JobDTO;
 import com.spring.jobms.job.external.Company;
+import com.spring.jobms.job.external.Review;
+
+import java.util.List;
 
 public class JobMapper {
-    public static JobWithCompanyDTO mapToJobWithCompanyDTO(
+    public static JobDTO mapToJobWithCompanyDTO(
             Job job,
-            Company company
+            Company company,
+            List<Review> reviews
     ) {
-        JobWithCompanyDTO jobWithCompanyDTO = new JobWithCompanyDTO();
-        jobWithCompanyDTO.setId(job.getId());
-        jobWithCompanyDTO.setCompany(company);
-        jobWithCompanyDTO.setDescription(job.getDescription());
-        jobWithCompanyDTO.setTitle(job.getTitle());
-        jobWithCompanyDTO.setLocation(job.getLocation());
-        jobWithCompanyDTO.setMaxSalary(job.getMaxSalary());
-        jobWithCompanyDTO.setMinSalary(job.getMinSalary());
-        return jobWithCompanyDTO;
+        JobDTO jobDTO = new JobDTO();
+        jobDTO.setId(job.getId());
+        jobDTO.setDescription(job.getDescription());
+        jobDTO.setTitle(job.getTitle());
+        jobDTO.setLocation(job.getLocation());
+        jobDTO.setMaxSalary(job.getMaxSalary());
+        jobDTO.setMinSalary(job.getMinSalary());
+        jobDTO.setCompany(company);
+        jobDTO.setReviews(reviews);
+        return jobDTO;
     }
 }
