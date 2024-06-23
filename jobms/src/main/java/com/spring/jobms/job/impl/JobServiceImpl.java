@@ -6,6 +6,7 @@ import com.spring.jobms.job.JobRepository;
 import com.spring.jobms.job.JobService;
 import com.spring.jobms.job.dto.JobWithCompanyDTO;
 import com.spring.jobms.job.external.Company;
+import com.spring.jobms.job.mapper.JobMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -35,15 +36,11 @@ public class JobServiceImpl implements JobService {
     }
 
     private JobWithCompanyDTO convertToDto(Job job) {
-//        RestTemplate restTemplate = new RestTemplate();
         Company company = restTemplate.getForObject(
                 "http://COMPANY-SERVICE:8081/companies/"+job.getCompanyId(),
                 Company.class
         );
-        JobWithCompanyDTO jobWithCompanyDTO = new JobWithCompanyDTO();
-        jobWithCompanyDTO.setJob(job);
-        jobWithCompanyDTO.setCompany(company);
-        return jobWithCompanyDTO;
+        return JobMapper.mapToJobWithCompanyDTO(job, company);
     }
 
     @Override
@@ -53,8 +50,12 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public Job getJobById(Long id) {
-        return this.jobRepository.findById(id).orElse(null);
+    public JobWithCompanyDTO getJobById(Long id) {
+        Job job = this.jobRepository.findById(id).orElse(null);
+        if (job != null) {
+            return convertToDto(job);
+        }
+        return null;
     }
 
     @Override
