@@ -4,6 +4,8 @@ package com.spring.jobms.job.impl;
 import com.spring.jobms.job.Job;
 import com.spring.jobms.job.JobRepository;
 import com.spring.jobms.job.JobService;
+import com.spring.jobms.job.clients.CompanyClient;
+import com.spring.jobms.job.clients.ReviewClient;
 import com.spring.jobms.job.dto.JobDTO;
 import com.spring.jobms.job.external.Company;
 import com.spring.jobms.job.external.Review;
@@ -27,8 +29,13 @@ public class JobServiceImpl implements JobService {
     @Autowired
     RestTemplate restTemplate;
 
-    public JobServiceImpl(JobRepository jobRepository) {
+    private CompanyClient companyClient;
+    private ReviewClient reviewClient;
+
+    public JobServiceImpl(JobRepository jobRepository, CompanyClient companyClient, ReviewClient reviewClient) {
         this.jobRepository = jobRepository;
+        this.companyClient = companyClient;
+        this.reviewClient = reviewClient;
     }
 
     @Override
@@ -40,18 +47,8 @@ public class JobServiceImpl implements JobService {
     }
 
     private JobDTO convertToDto(Job job) {
-        Company company = restTemplate.getForObject(
-                "http://COMPANY-SERVICE:8081/companies/"+job.getCompanyId(),
-                Company.class
-        );
-        ResponseEntity<List<Review>> reviewResponse =
-        restTemplate.exchange(
-                "http://REVIEW-SERVICE:8083/reviews?companyId="+job.getCompanyId(),
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<Review>>(){}
-        );
-        List<Review> reviews = reviewResponse.getBody();
+        Company company = companyClient.getCompany(job.getCompanyId());
+        List<Review> reviews = reviewClient.getReviews(job.getCompanyId());
         return JobMapper.mapToJobWithCompanyDTO(job, company, reviews);
     }
 
